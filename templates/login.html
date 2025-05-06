@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        html, body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            color: #333;
+        }
+        .flex-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin-top: -50px;
+        }
+        /* 窗口缩小时优先显示整个窗口 */
+        @media (max-height: 600px) {
+            .flex-container {
+                margin-top: 0;
+            }
+        }
+        .login-container {
+            width: 300px;
+            padding: 2em;
+            background: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .form-input {
+            margin-bottom: 1em;
+            width: 100%;
+        }
+        .form-input input {
+            padding: 10px;
+            width: calc(100% - 22px);
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .register-btn {
+            display: block;
+            margin-top: 10px;
+            padding: 10px 0;
+            color: #fff;
+            background-color: #28a745;
+            border-radius: 5px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+        .register-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex-container">
+      <div class="login-container">
+        <h1>Login</h1>
+        <form method="post">
+          <div class="form-input">
+            <input type="text" id="identifier" name="identifier" placeholder="Username, Email, or SSN" required>
+          </div>
+          
+          <div class="form-input" style="position: relative;">
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <div id="togglePassword" style="position: absolute; right: 10px; top: 10px; cursor: pointer;">
+              <!-- 一个简单的眼睛图标用于切换可见性 -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-eye" viewBox="0 0 24 24">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </div>
+          </div>
+          
+          <button type="submit">Login</button>
+        </form>
+        <p style="margin-top: 1em;">Don't have an account? <a href="/register" class="register-btn">Register one!</a></p>
+      </div>
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <ul class="flashes">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% endwith %}
+    </div>
+
+    <script>
+      document.getElementById('togglePassword').addEventListener('mousedown', function (e) {
+          // 当按下鼠标按钮时，显示密码
+          document.getElementById('password').type = 'text';
+      });
+      document.getElementById('togglePassword').addEventListener('mouseup', function (e) {
+          // 当松开鼠标按钮时，隐藏密码
+          document.getElementById('password').type = 'password';
+      });
+      document.getElementById('togglePassword').addEventListener('mouseleave', function (e) {
+          // 当鼠标光标离开按钮时，隐藏密码
+          document.getElementById('password').type = 'password';
+      });
+    </script>
+
+</body>
+</html>

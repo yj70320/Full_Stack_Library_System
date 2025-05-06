@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Book Search and Borrow</title>
+    <style>
+      body {
+          font-family: Arial, sans-serif;
+      }
+      .container {
+          width: 80%;
+          margin: auto;
+      }
+      .form-section, .results-section, .available-copies-section, .back-button-section {
+          margin-bottom: 20px;
+      }
+      h1 {
+            color: #333;
+            text-align: center;
+      }
+      h2, h3 {
+          color: #333;
+      }
+      .button {
+          display: inline-block;
+          padding: 10px 20px;
+          font-size: 16px;
+          cursor: pointer;
+          text-align: center;
+          text-decoration: none;
+          outline: none;
+          color: #fff;
+          background-color: #6a7986;
+          border: none;
+          border-radius: 15px;
+          box-shadow: 0 9px #999;
+      }
+      .button:hover { background-color: #3e8e41 }
+      .button:active {
+          background-color: #3e8e41;
+          box-shadow: 0 5px #666;
+          transform: translateY(4px);
+      }
+      ul { list-style-type: none; padding: 0; }
+      li { margin-bottom: 10px; }
+      p { margin: 5px 0; }
+    </style>
+  </head>
+  <body>
+    <h1>Book Search and Borrow</h1>
+    <div class="container">
+      <!-- 搜索表单区域 -->
+      <div class="form-section">
+        <form method="POST">
+          <select name="search_type">
+            <option value="title">Title</option>
+            <option value="author">Author</option>
+            <option value="nation">Nation</option>
+            <option value="category">Category</option>
+          </select>
+          <input type="text" name="keyword" placeholder="Search for books...">
+          <button type="submit">Search</button>
+        </form>
+      </div>
+
+      <!-- 借书与还书表单区域 -->
+      <div class="form-section">
+        <h3>Borrow a Book</h3>
+        <form method="POST">
+          <input type="text" name="copyID" placeholder="Enter Copy ID">
+          <input type="text" name="userID" placeholder="Enter User ID">
+          <input type="hidden" name="action" value="borrow">
+          <button type="submit">Borrow</button>
+        </form>
+        <h3>Return a Book</h3>
+        <form method="POST">
+          <input type="text" name="copyID" placeholder="Enter Copy ID">
+          <input type="text" name="userID" placeholder="Enter User ID">
+          <input type="hidden" name="action" value="return">
+          <button type="submit">Return</button>
+        </form>
+      </div>
+
+      <!-- 搜索结果展示区域 -->
+      <div class="results-section">
+        {% if message %}
+        <p>{{ message }}</p>
+        {% endif %}
+        {% if search_results %}
+        <h2>Search Results</h2>
+        <ul>
+          {% for book in search_results %}
+          <li>
+            <!-- 书籍信息显示 -->
+            <p>Title: {{ book['Title'] }}</p>
+            <p>Author: {{ book['Author'] }}</p>
+            <p>Nation: {{ book['Nation'] }}</p>
+            <p>Category: {{ book['Category'] }}</p>
+            <p>Available Copies: {{ book['Available'] }}</p>
+            <p>Shelf Location: Floor {{ book['Floor'] }}, Row {{ book['Row'] }}, Shelf {{ book['Shelf'] }}</p>
+            <!-- 若书籍可借，则显示借书按钮 -->
+            <!--
+            {% if book['Available'] > 0 %}
+            <form method="POST" style="display: inline;">
+              <input type="hidden" name="copyID" value="{{ book['CopyID'] }}">
+              <input type="hidden" name="userID" value="{{ user_id }}">
+              <input type="hidden" name="action" value="borrow">
+              <button type="submit">Borrow</button>
+            </form>
+            {% endif %}-->
+            <!-- 显示所有可用副本的ID -->
+            <p>Available Copy IDs: 
+              {% for copy in all_available_copies[book['BookID']] %}
+                {% if copy['Status'] == 'Available' %}
+                  {{ copy['CopyID'] }} 
+                {% endif %}
+              {% endfor %}
+            </p>
+            <!-- 显示所有已借出副本的ID -->
+            <p>Borrowed Copy IDs: 
+              {% for copy in all_available_copies[book['BookID']] %}
+                {% if copy['Status'] == 'Borrowed' %}
+                  {{ copy['CopyID'] }} 
+                {% endif %}
+              {% endfor %}
+            </p>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p>No search results to display.</p>
+        {% endif %}
+      </div>
+
+      <!-- 返回按钮区域 -->
+      <div class="back-button-section">
+        <a href="/staff" class="button">Back</a>
+      </div>
+    </div>
+  </body>
+</html>

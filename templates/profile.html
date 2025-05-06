@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ user_info['Username'] }}'s Profile</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+            height: 100%;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto; 
+            padding: 2em;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 1em;
+        }
+        p {
+            color: #666; 
+            line-height: 1.6; 
+        }
+        .edit-profile-button, .profile-button, .logout-button {
+            padding: 10px 20px;
+            margin: 5px 0; 
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            background-color: #6a7986; 
+            text-decoration: none;
+            display: block;
+            width: calc(100% - 40px); 
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .edit-profile-button:hover, .profile-button:hover, .logout-button:hover {
+            background-color: #5e6e7a; 
+        }
+        .profile-button {
+            background-color: #78898c;
+        }
+        .logout-button {
+            background-color: #505c66; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+      <h1>{{ user_info['Username'] }}'s Profile</h1>
+        
+        <div class="section">
+            <h2>Personal Information</h2>
+            <p>ID: {{ user_info['UserID'] }}</p>
+            <p>Email: {{ user_info['Email'] }}</p>
+            <!-- 只在员工时显示 -->
+            {% if user_info.get('staff_info') %}
+            <p>Job Title: {{ user_info['staff_info']['JobTitle'] }}</p>
+            <p>Responsibility: {{ user_info['staff_info']['Responsibility'] }}</p>
+            <p>Salary: ${{ "%.2f"|format(user_info['staff_info']['Salary']) }} / h</p>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <h2>Books</h2>
+            <!-- 循环显示借阅的书籍 -->
+            {% for book in user_info['borrowed_books'] %}
+            <p>{{ book['Title'] }} by {{ book['Author'] }} (Borrowed on {{ book['BorrowDate'].strftime('%Y-%m-%d') }})</p>
+            {% else %}
+            <p>No books borrowed currently.</p>
+            {% endfor %}
+        </div>
+
+
+ 
+
+         <div class="section">
+          <h2>Study Room Reservations</h2>
+          
+          {% if user_info['studyroom_reservations'] %}
+          {% for reservation in user_info['studyroom_reservations'] %}
+          <p>Room {{ reservation['RoomNumber'] }} ({{ reservation['ReserveDate'] }} from {{ reservation['ReserveTimeStart'] }} to {{ reservation['ReserveTimeEnd'] }})</p>
+          {% endfor %}
+          {% else %}
+          <p>No current study room reservations.</p>
+          {% endif %}
+        </div>
+
+
+        <div class="section">
+          <h2>Events</h2>
+          <!-- 循环显示参与的活动 -->
+          {% for event in user_info['events'] %}
+            <p>{{ event['EventName'] }} ({{ event['DateAndTime'].strftime('%Y-%m-%d %H:%M:%S') }} at {{ event['Location'] }})</p>
+            {% else %}
+            <p>No upcoming events.</p>
+            {% endfor %}
+        </div>
+
+        <a href="{{ url_for('edit_profile') }}" class="edit-profile-button">Edit Profile</a>
+        <a href="/staff" class="profile-button">Back</a>
+
+
+        <!-- 注销按钮 -->
+        <form action="{{ url_for('logout') }}" method="post">
+            <button class="logout-button">Logout</button>
+        </form>
+    </div>
+</body>
+</html>

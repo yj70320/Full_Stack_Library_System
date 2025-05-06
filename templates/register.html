@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+      /* 全局样式 */
+      body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          margin: 0;
+          padding: 0;
+          background: #f7f7f7;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          color: #333;
+      }
+
+      /* 容器样式 */
+      .container {
+          width: 340px;
+          padding: 20px;
+          background: #fff;
+          border: 1px solid #ddd;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          text-align: center;
+      }
+
+      /* 标题样式 */
+      h2 {
+          color: #5B5EA6;
+      }
+
+      /* 输入框和按钮样式 */
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      button {
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 15px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          box-sizing: border-box;
+      }
+
+      /* 单选按钮样式 */
+      .user-type {
+          text-align: left;
+          margin-bottom: 10px;
+      }
+
+      label {
+          margin-left: 5px;
+          font-size: 14px;
+      }
+
+      /* 按钮样式 */
+      button {
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          cursor: pointer;
+          transition: opacity 0.3s ease;
+      }
+
+      button:hover {
+          opacity: 0.8;
+      }
+
+      button.back-btn {
+          background-color: #555;
+      }
+
+      /* 额外字段的样式 */
+      #staff_fields {
+          display: none;
+          text-align: left;
+      }
+
+      /* 错误消息的样式*/
+      .flash {
+          color: #ff6b6b; /* 红色提示 */
+          margin-bottom: 10px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Register</h2>
+
+      <!-- 错误消息容器 -->
+      <div id="error_messages">
+        <!-- Flask flash消息将在这里显示 -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div id="flashes">
+          {% for message in messages %}
+          <p class="flash">{{ message }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+      </div>
+      
+      <form action="/register" method="post">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="text" name="ssn" placeholder="SSN" pattern="\d{9}" title="SSN must be 9 digits" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+
+        <!-- 用户类型选择 -->
+        <div class="user-type">
+          <input type="radio" id="reader" name="user_type" value="reader" checked>
+          <label for="reader">Reader</label>
+          <input type="radio" id="staff" name="user_type" value="staff">
+          <label for="staff">Staff</label>
+        </div>
+
+        <!-- 员工附加字段 -->
+        <div id="staff_fields">
+          <!-- 注意这里去掉了required属性 -->
+          <input type="text" name="job_title" placeholder="Job Title">
+          <input type="text" name="salary" placeholder="Hourly Wage">
+          <input type="text" name="responsibility" placeholder="Responsibilities">
+        </div>
+
+        <button type="submit">Register</button>
+      </form>
+      <button class="back-btn" onclick="window.location.href='/'">Go back to login</button>
+    </div>
+
+    <!-- 切换员工字段可见性和必填状态的JavaScript -->
+    <script>
+      let staffRadio = document.getElementById('staff');
+      let readerRadio = document.getElementById('reader');
+      let staffFields = document.getElementById('staff_fields');
+
+      function toggleStaffFields() {
+          if (staffRadio.checked) {
+              staffFields.style.display = 'block';
+              // 将员工字段设置为必填
+              Array.from(staffFields.querySelectorAll('input')).forEach(input => input.required = true);
+          } else {
+              staffFields.style.display = 'none';
+              // 移除员工字段的必填状态
+              Array.from(staffFields.querySelectorAll('input')).forEach(input => input.required = false);
+          }
+      }
+
+      // 为单选按钮添加事件监听器
+      staffRadio.addEventListener('change', toggleStaffFields);
+      readerRadio.addEventListener('change', toggleStaffFields);
+
+      // 初始化字段状态
+      toggleStaffFields();
+    </script>
+  </body>
+</html>

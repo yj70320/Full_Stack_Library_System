@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User List</title>
+</head>
+<body>
+    <h1>User List</h1>
+    <table border="1">
+        <tr>
+            <th>UserID</th>
+            <th>Username</th>
+            <th>SSN</th>
+            <th>Email</th>
+            <th>Balance</th>
+            <th>Register Time</th>
+            <th>Books Limit</th>
+            <th>StudyRoom Limit</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user[0] }}</td>
+            <td>{{ user[1] }}</td>
+            <td>{{ user[2] }}</td>
+            <td>{{ user[3] }}</td>
+            <td>{{ user[5] }}</td>
+            <td>{{ user[6] }}</td>
+            <td>{{ user[7] }}</td>
+            <td>{{ user[8] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Page</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        p {
+            color: #666;
+        }
+        .button-container {
+            margin-top: 30px;
+        }
+        .big-button, .logout-button {
+            padding: 15px 30px;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white; 
+            background-color: #6a7986; 
+            display: inline-block; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /
+        }
+        .logout-button {
+            background-color: #a8b1bb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome, {{ session.get('username') }}!</h1>
+    <p>Your ID: {{ session.get('user_id') }}</p>
+    <div class="button-container">
+        <a href="/books" class="big-button">Books</a>
+        <a href="/study_rooms" class="big-button">Study Room</a>
+        <a href="/events" class="big-button">Events</a>
+        <a href="/profile" class="big-button">Profile</a>
+        
+        <!-- Logout button -->
+        <form action="{{ url_for('logout') }}" method="post">
+            <button class="logout-button">Logout</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Study Room Reservation</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 800px; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px; 
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box; 
+        }
+        button, .button {
+            background-color: #6a7986;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover, .button:hover {
+            background-color: #6a7986;
+        }
+        button:active, .button:active {
+            background-color: #6a7986;
+            box-shadow: none;
+            transform: translateY(2px);
+        }
+        .time-slot {
+            display: inline-block;
+            margin-right: 10px;
+            background-color: #e7e7e7;
+            color: black;
+            border: 1px solid transparent;
+        }
+        .time-slot.selected {
+            background-color: #6a7986;
+            color: white;
+            border-color: #6a7986;
+        }
+        .message-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .message-list li {
+            background-color: #f2dede;
+            color: #a94442;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+  </head>
+  <body>
+    <h1>Study Room Reservation</h1>
+    
+    <form action="{{ url_for('study_rooms') }}" method="post" id="reservationForm">
+      <!-- 选择日期 -->
+      <label for="date">Select Date:</label>
+      <input type="date" id="date" name="selected_date" min="{{ current_date }}" required>
+      
+      <!-- 选择会议室 -->
+      <label for="room">Select Study Room:</label>
+      <select id="room" name="selected_room" required>
+        {% for room in rooms %}
+        <option value="{{ room.StudyRoomID }}">{{ room.RoomNumber }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- 时间段选择容器 -->
+      <div id="timeSlots"></div>
+      
+      <!-- 提交预定的按钮 -->
+      <button type="submit" name="action" value="reserve" id="submitBtn">Reserve</button>
+
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class="message-list">
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    
+    <div class="button-container">
+      <a href="/staff" class="button">Back</a>
+    </div>
+</div>
+
+<script>
+  var reservations = {{ reservations | tojson | safe }};
+  var timeSlots = {{ time_slots | tojson | safe }};
+  var current_date = '{{ current_date }}';
+  var current_time = '{{ current_time }}';
+  var userReservationsLimit = {{ userReservationsLimit | tojson }};
+  var currentReservations = 0;
+
+  document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('date').addEventListener('change', populateTimeSlots);
+      document.getElementById('room').addEventListener('change', populateTimeSlots);
+      populateTimeSlots();
+  });
+
+  // 填充时间段的函数
+  function populateTimeSlots() {
+      var selectedDate = document.getElementById('date').value;
+      var selectedRoom = document.getElementById('room').value;
+      var slotsContainer = document.getElementById('timeSlots');
+      slotsContainer.innerHTML = ''; // 清空现有的时间段
+
+      // 循环时间段并创建按钮
+      timeSlots.forEach(function(slot) {
+          // 仅添加当前日期之后的时间段
+          if (selectedDate > current_date || (selectedDate === current_date && slot > current_time)) {
+              var button = createSlotButton(slot, selectedDate, selectedRoom);
+              slotsContainer.appendChild(button);
+          }
+      });
+  }
+
+  // 创建时间段按钮的函数
+  function createSlotButton(slot, selectedDate, selectedRoom) {
+      var button = document.createElement('button');
+      button.type = 'button'; // 设置按钮类型，以避免提交表单
+      button.innerText = slot;
+      button.classList.add('time-slot');
+      button.dataset.slot = slot;
+      button.disabled = isSlotDisabled(slot, selectedDate, selectedRoom); // 检查时间段是否可用
+      button.addEventListener('click', function() { toggleTimeSlot(slot, button); });
+      return button;
+  }
+
+  // 检查时间段是否不可用的函数
+  function isSlotDisabled(slot, selectedDate, selectedRoom) {
+      var isPastTime = selectedDate === current_date && slot < current_time;
+      var isReserved = reservations[selectedRoom] && reservations[selectedRoom].includes(slot);
+      return isPastTime || isReserved; // 过去的时间或已被预订的时间不可用
+  }
+
+
+  function toggleTimeSlot(slot, button) {
+      if (button.classList.contains('selected')) {
+          button.classList.remove('selected');
+          currentReservations -= 0.5;
+          removeHiddenInput(slot);
+      } else if (currentReservations + 0.5 <= userReservationsLimit) {
+          button.classList.add('selected');
+          currentReservations += 0.5;
+          addHiddenInput(slot);
+      } else {
+          alert('You have reached your reservation limit.');
+      }
+      updateSubmitButtonState();
+  }
+
+  function addHiddenInput(slot) {
+      var hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.name = 'selected_times';
+      hiddenInput.value = slot;
+      document.getElementById('reservationForm').appendChild(hiddenInput);
+  }
+
+  function removeHiddenInput(slot) {
+      var inputs = document.querySelectorAll('input[name="selected_times"]');
+      inputs.forEach(function(input) {
+          if (input.value === slot) {
+              input.remove();
+          }
+      });
+  }
+
+  // 更新提交按钮的状态
+  function updateSubmitButtonState() {
+      var submitButton = document.getElementById('submitBtn');
+      submitButton.disabled = document.querySelectorAll('input[name="selected_times"]').length === 0;
+  }
+
+  // 页面加载完成后，初始化时间段
+  document.addEventListener('DOMContentLoaded', function() {
+      populateTimeSlots(); // 初始填充时间段
+      document.getElementById('date').addEventListener('change', populateTimeSlots); // 监听日期变化
+      document.getElementById('room').addEventListener('change', populateTimeSlots); // 监听房间变化
+  });
+</script>
+</body>
+</html>

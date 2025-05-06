@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+    <style>
+      body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          margin: 0;
+          padding: 20px;
+      }
+      .container {
+          max-width: 600px;
+          background-color: #fff;
+          margin: 20px auto;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+      h1 {
+          color: #333;
+          text-align: center;
+      }
+      form {
+          margin-bottom: 20px;
+      }
+      label, input, button {
+          display: block;
+          width: 100%;
+          margin-bottom: 10px;
+      }
+      input, button {
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          box-sizing: border-box;
+      }
+      button {
+          background-color: #6a7986;
+          color: white;
+          cursor: pointer;
+      }
+      button:hover {
+          background-color: #5e6e7a;
+      }
+      .back-button {
+          text-align: center;
+      }
+    </style>
+    <script>
+      window.onload = function() {
+        // 页面加载后，检查是否有 flash 消息
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            // 如果收到消息，定义清空表单的函数
+            var clearFormFields = function() {
+              // 只清空密码字段
+              document.getElementById('old_password').value = '';
+              document.getElementById('new_password').value = '';
+            };
+
+            // 遍历所有消息，寻找更新成功的消息
+            {% for message in messages %}
+              if ("{{ message }}" === 'Your profile has been successfully updated.') {
+                // 如果找到更新成功的消息，则调用函数清空密码字段
+                clearFormFields();
+              }
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Profile</h1>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash-messages">
+              <!-- 显示所有 flash 消息 -->
+              {% for message in messages %}
+                <p class="flash-message">{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+        
+        <div class="user-info">
+            <!--  显示 UserID 和 SSN 信息 -->
+            <p><strong>UserID:</strong> {{ user_info['UserID'] }}</p>
+            <p><strong>SSN:</strong> {{ user_info['SSN'] }}</p>
+        </div>
+
+        <form id="edit-profile-form" action="{{ url_for('edit_profile') }}" method="post">
+            <!--  用户名输入框 -->
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="New Username" value="{{ user_info['Username'] }}">
+            
+            <!--  邮箱输入框 -->
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="New Email Address" value="{{ user_info['Email'] }}">
+
+            <!--  旧密码输入框 -->
+            <label for="old_password">Old Password:</label>
+            <input type="password" id="old_password" name="old_password" placeholder="Enter Old Password">
+
+            <!-- 新密码输入框 -->
+            <label for="new_password">New Password:</label>
+            <input type="password" id="new_password" name="new_password" placeholder="Enter New Password">
+
+            <button type="submit">Update Profile</button>
+        </form>
+        
+        <div class="back-button">
+            <a href="{{ url_for('user_profile') }}">Back to Profile</a>
+        </div>
+    </div>
+</body>
+</html>

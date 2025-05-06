@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Events</title>
+    <style>
+        h1 {
+            text-align: center;
+        }
+        .return-button {
+            display: block;
+            width: 100px;
+            margin: 20px auto;
+            padding: 10px;
+            text-align: center;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+  <h1>Events</h1>
+    {% for event in events %}
+        <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+            <h3>{{ event.EventName }}</h3>
+            <p>Date and Time: {{ event.DateAndTime }}</p>
+            <p>Location: {{ event.Location }}</p>
+            <p>Description: {{ event.Description }}</p>
+            <p>Host: {{ event.Host }}</p>
+            <p>Total Participants: {{ event.ParticipantCount }}</p>
+            <p>Participants IDs: {{ event.UserIDs }}</p>
+            
+            <!-- 加入活动的表单 -->
+            <form action="/join_event" method="post">
+                <input type="hidden" name="event_id" value="{{ event.EventID }}">
+                <input type="number" name="user_id" placeholder="User ID" required>
+                <button type="submit">Join Event</button>
+            </form>
+            
+            <!-- 退出活动的表单 -->
+            <form action="/leave_event" method="post">
+                <input type="hidden" name="event_id" value="{{ event.EventID }}">
+                <input type="number" name="user_id" placeholder="User ID" required>
+                <button type="submit">Leave Event</button>
+            </form>
+        </div>
+        {% endfor %}
+
+        <a href="/staff" class="return-button">Back</a>
+</body>
+</html>
